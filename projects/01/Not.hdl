@@ -6,6 +6,7 @@
 /**
  * Not gate:
  * out = not in
+ * theory: Not a = Nand(a, a)
  */
 
 CHIP Not {
@@ -14,4 +15,5 @@ CHIP Not {
 
     PARTS:
     // Put your code here:
+    Nand(a = in, b = in, out = out);
 }
