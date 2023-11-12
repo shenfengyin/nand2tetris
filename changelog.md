@@ -21,7 +21,7 @@
 
 ### 多通道逻辑门（multi-Way）
 - Or8Way：out = (in[0] or in[1] or ... or in[7])
-- Mux8Way16： out = a if sel == 00
+- Mux4Way16（4通道 16bit）： out = a if sel == 00
                    b if sel == 01
                    c if sel == 10
                    d if sel == 11
@@ -93,4 +93,46 @@ CHIP ALU {
 
     PARTS:
     //具体实现看代码逻辑
+```
+
+## 实验三：构建DFF、RAM和计数器
+
+> 基于先前构建的逻辑门，构建加法器和ALU
+
+### 数据触发器（DFF）
+触发器接收时钟、数据输入，作为最基本的时序单元。
+
+这里的DFF将前一周期的输入值当成当前周期的输出，out(t) = in(t - 1)。
+如此一来，在任何时间t，这个设备的输出out都会重现它在时刻t - 1的值。
+
+如果我们把DFF输出在作为下一时刻的输入，那DFF不就实现了持续性存储的效果？这就是寄存器的设计（注意区别）
+
+### 寄存器
+- 1-bit Register：Mul + DFF
+- n-bit Register: 并行的1-bit Register
+- 随即存取内存（RAM8）：逻辑见下
+- RAM64:8个RAM8组成
+- RAM512、4K、16K同理
+```
+这里先通过DMux8Way选地址，loadABCD...H只有一个=1，其他都为0。
+8个Register只有一个load=1，写可以使其变化，其他7个没有变化。
+最后再次通过address，选择输出（读写都可以）。
+CHIP RAM8 {
+    IN in[16], load, address[3];
+    OUT out[16];
+
+    PARTS:
+    DMux8Way(in = load, sel = address, a = loadA, b = loadB, c = loadC, d = loadD, e = loadE, f = loadF, g = loadG, h = loadH);
+
+    Register(in = in, load = loadA, out = o1);
+    Register(in = in, load = loadB, out = o2);
+    Register(in = in, load = loadC, out = o3);
+    Register(in = in, load = loadD, out = o4);
+    Register(in = in, load = loadE, out = o5);
+    Register(in = in, load = loadF, out = o6);
+    Register(in = in, load = loadG, out = o7);
+    Register(in = in, load = loadH, out = o8);
+
+    Mux8Way16(a = o1, b = o2, c = o3, d = o4, e = o5, f = o6, g = o7, h = o8, sel = address, out = out);
+}
 ```
