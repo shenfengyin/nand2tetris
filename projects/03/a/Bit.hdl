@@ -7,6 +7,9 @@
  * 1-bit register:
  * If load[t] == 1 then out[t+1] = in[t]
  *                 else out does not change (out[t+1] = out[t])
+ * DFF: out(t) = in(t - 1)
+ * 这里DFF(in = o1, out = preOut, out = out)可以参考下1-bit寄存器的设计图
+ * out = preOut表示DFF的输出作为Mux的输入
  */
 
 CHIP Bit {
@@ -14,5 +17,6 @@ CHIP Bit {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    Mux(a = preOut, b = in, sel = load, out = o1);
+    DFF(in = o1, out = preOut, out = out);
 }
